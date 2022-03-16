@@ -1,6 +1,6 @@
 import argparse
 import os
-from dotenv import load_dotenv
+from dotenv import load_dotenv; load_dotenv()
 from app import en_scrap, jp_scrap
 
 # Results dir
