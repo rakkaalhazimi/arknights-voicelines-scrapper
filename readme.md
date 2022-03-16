@@ -9,7 +9,7 @@ Scrap and download arknight character voicelines, the voice is mainly JP and the
 ## Installation
 1. Clone this repository
    ```
-   git clone [repository]
+   git clone https://github.com/rakkaalhazimi/arknights-voicelines-scrapper
    ```
 2. Pip install requirements.txt
    ```
