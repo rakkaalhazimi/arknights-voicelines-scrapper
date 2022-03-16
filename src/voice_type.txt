@@ -1,0 +1,35 @@
+Appointed as assistant
+Talk #1
+Talk #2
+Talk #3
+Talk after Elite 1 promotion
+Talk after Elite 2 promotion
+Talk after trust increase #1
+Talk after trust increase #2
+Talk after trust increase #3
+Idle
+Introduction
+Given Battle Records
+Promoted to Elite 1	Ha!
+Promoted to Elite 2
+Added to a squad
+Appointed as the squad leader
+Operation start
+An enemy is about to spawn
+Selected #1
+Selected #2
+Deployed #1
+Deployed #2
+Using skill #1
+Using skill #2
+Using skill #3
+Using skill #4
+Operation cleared with 4 stars
+Operation cleared with 3 stars
+Operation cleared with 2 stars
+Operation failure
+Assigned to a RIIC facility
+Tap
+Trust tap
+Greetings
+Title
