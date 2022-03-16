@@ -14,10 +14,11 @@ if not os.path.exists(LINE_DIR):
     os.mkdir(LINE_DIR)
 
 class LineScrapper:
-    def __init__(self, url, char_name):
+    def __init__(self, url, char_name, tag_number):
         # Init variable
         self.url = url
         self.char_name = char_name
+        self.tag_number = tag_number
 
         # Initiate websriver options
         user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.83 Safari/537.36"
@@ -45,8 +46,8 @@ class LineScrapper:
 
     def scrap_lines(self):
         print(f"Running {__name__}")
-        self.driver.find_element_by_id("rgn_button4").click()
-        elements = self.driver.find_elements_by_css_selector("#rgn_content4 th.style_th > span")
+        self.driver.find_element_by_id(f"rgn_button{self.tag_number}").click()
+        elements = self.driver.find_elements_by_css_selector(f"#rgn_content{self.tag_number} th.style_th > span")
         path = os.path.join(LINE_DIR, f"{self.char_name}_JP.txt")
 
         if not os.path.exists(path):
@@ -58,7 +59,7 @@ class LineScrapper:
 
 
 def scrap(params):
-    scrapper = LineScrapper(url=params.url, char_name=params.char_name)
+    scrapper = LineScrapper(url=params.url, char_name=params.char_name, tag_number=params.tag_number)
     elm = scrapper.scrap_lines()
 
 
@@ -66,7 +67,8 @@ if __name__ == "__main__":
     # Parse argument
     parser = argparse.ArgumentParser(description="Scrap Arknights Characters JP Lines")
     parser.add_argument("--char_name", required=True, help="Arknights character name")
-    parser.add_argument("--url", required=True, help="Arknights wikiru jp character page")
+    parser.add_argument("--jp_url", required=True, help="Arknights wikiru jp character page")
+    parser.add_argument("--jp_tag_number", default="4", help="Tag number that contains the dialouge line (ex: 4 for lappland because it is contained in rgn_content4, inspect the web for another characters)")
     args = parser.parse_args()
 
     # Run program
