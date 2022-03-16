@@ -59,7 +59,7 @@ class LineScrapper:
 
 
 def scrap(params):
-    scrapper = LineScrapper(url=params.url, char_name=params.char_name, tag_number=params.tag_number)
+    scrapper = LineScrapper(url=params.jp_url, char_name=params.char_name, tag_number=params.jp_tag_number)
     elm = scrapper.scrap_lines()
 
 
