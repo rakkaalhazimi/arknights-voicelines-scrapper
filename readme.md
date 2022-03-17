@@ -23,14 +23,15 @@ Scrap and download arknight character voicelines, the voice is mainly JP and the
 ## How to Use
 The program will scrap voices and english line from https://arknights.fandom.com/ and scrap japan line from https://arknights.wikiru.jp/index.php .
 
-Start scrapping by executing `scrap.py` file with two required arguments, `--char_name` and `--url`.
+Start scrapping by executing `scrap.py` file with one required arguments, `--task`.
 
-- --char_name : arknights character name
-- --url : url for the specific characters (for japan lines). Find your characters link [here](https://arknights.wikiru.jp/index.php?%A5%AD%A5%E3%A5%E9%A5%AF%A5%BF%A1%BC%B0%EC%CD%F7)
+- --task : what task to be performed? (available: operator_list, operator_lines, operator_voices)
 
-If there is error (it might be because there aren't voice provided for specific chars), you can run the file individually in `app` directory or modify `scrap.py` file.
+Execute with `--task=operator_list` to get the operator list required for the other task.
+(You also need to check the result text first, because there will be a small typo)
 
-After scrapping, you can then continue to run `parse.py` with `--char_name` args to convert your scrapped lines into csv file (the results will be stored on `results/csv` dir).
+After scrapping the operator list, you can then continue to run the other task. Then, you can also run
+`parse.py` with `--char_name` args to convert your scrapped lines into csv file (the results will be stored on `results/csv` dir).
 
 ## Projects Info
 - Author: Rakka Alhazimi
