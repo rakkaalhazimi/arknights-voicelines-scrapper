@@ -23,11 +23,11 @@ Scrap and download arknight character voicelines, the voice is mainly JP and the
 ## How to Use
 The program will scrap voices and english line from https://arknights.fandom.com/ and scrap japan line from https://arknights.wikiru.jp/index.php .
 
-Start scrapping by executing `scrap.py` file with one required arguments, `--task`.
+Start scrapping by executing `main.py` file with one required arguments, `task`.
 
-- --task : what task to be performed? (available: operator_list, operator_lines, operator_voices)
+- task : what task to be performed? (available: operator_list, operator_lines, operator_voices)
 
-Execute with `--task=operator_list` to get the operator list required for the other task.
+Execute with `operator_list` argument to get the operator list required for the other task.
 (You also need to check the result text first, because there will be a small typo)
 
 After scrapping the operator list, you can then continue to run the other task. Then, you can also run
