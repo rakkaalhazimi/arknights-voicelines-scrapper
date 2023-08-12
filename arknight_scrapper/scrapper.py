@@ -88,12 +88,11 @@ class Bs4Scrapper(Scrapper):
 class OperatorListScrapper(SeleniumScrapper):
 
     def run(self):
-        text_dir = os.getenv("OTHER_DIR")
         text_fn = "operators.txt"
-        text_path = os.path.join(text_dir, text_fn)
+        text_path = os.path.join(OPERATOR_DIR, text_fn)
 
-        if not os.path.exists(text_dir):
-            os.mkdir(text_dir)
+        if not os.path.exists(OPERATOR_DIR):
+            os.makedirs(OPERATOR_DIR, exist_ok=True)
 
         url_list = [
             "https://arknights.fandom.com/wiki/Operator/6-star",
@@ -121,15 +120,14 @@ class OperatorVoiceENScrapper(Bs4Scrapper):
 
     def run(self):
         main_url = "https://arknights.fandom.com/wiki/{}/Dialogue"
-        operator_list_text = os.path.join(os.getenv("OTHER_DIR"), "operators.txt")
+        operator_list_text = os.path.join(OPERATOR_DIR, "operators.txt")
 
         with open(operator_list_text, "r", encoding="utf-8") as file:
             operators = file.read().splitlines()
             operators = list(filter(lambda text: text, operators))
 
-        voice_dir = os.getenv("VOICE_DIR")
-        if not os.path.exists(voice_dir):
-            os.mkdir(voice_dir)
+        if not os.path.exists(VOICE_DIR):
+            os.makedirs(VOICE_DIR, exist_ok=True)
 
         for name in operators:
             # Parse name
@@ -150,9 +148,9 @@ class OperatorVoiceENScrapper(Bs4Scrapper):
                 continue
 
             # Make char voice directory
-            cvoice_dir = os.path.join(os.getenv("VOICE_DIR"), name)
+            cvoice_dir = os.path.join(VOICE_DIR, name)
             if not os.path.exists(cvoice_dir):
-                os.mkdir(cvoice_dir)
+                os.makedirs(cvoice_dir, exist_ok=True)
 
             # Download sound in every element found
             for elm in elements:
