@@ -15,6 +15,12 @@ from selenium.webdriver.support.ui import WebDriverWait
 from arknight_scrapper.driver import DefaultWebDriver
 
 
+RESULTS_DIR="results"
+VOICE_DIR="results/voices"
+LINE_DIR="results/lines"
+OPERATOR_DIR="results/operators"
+
+
 
 class Scrapper(ABC):
     @abstractmethod
