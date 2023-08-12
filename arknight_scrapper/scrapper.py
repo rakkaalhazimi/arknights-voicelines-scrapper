@@ -159,7 +159,7 @@ class OperatorVoiceENScrapper(Bs4Scrapper):
                 anchor_href = anchor_tag.get("href")
                 parsed_url = urlparse(anchor_href)
 
-                # format: /wiki/File:Name-001.ogg
+                # format: /wiki/File:<Operator Name>-001.ogg
                 _, fn = parsed_url.path.split(":")
                 file_path = os.path.join(cvoice_dir, fn)
 
