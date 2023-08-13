@@ -1,11 +1,13 @@
 from abc import ABC, abstractmethod
+import logging;
 import os
 import time
 import urllib
 from urllib import request
-from urllib.parse import urlparse
+from urllib.parse import urlparse, unquote
 
 from bs4 import BeautifulSoup
+from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
@@ -174,3 +176,133 @@ class OperatorVoiceENScrapper(Bs4Scrapper):
                 # Sleep and report
                 print(f"File was saved in {file_path}")
                 time.sleep(0.05)
+
+
+class OperatorListJPScrapper(SeleniumScrapper):
+
+    def run(self):
+        text_fn = "operators_jp.txt"
+        query_fn = "operators_jp_query.txt"
+        text_path = os.path.join(OPERATOR_DIR, text_fn)
+        query_path = os.path.join(OPERATOR_DIR, query_fn)
+
+        if not os.path.exists(OPERATOR_DIR):
+            os.makedirs(OPERATOR_DIR, exist_ok=True)
+
+        url = "https://arknights.wikiru.jp/?%E3%82%AD%E3%83%A3%E3%83%A9%E3%82%AF%E3%82%BF%E3%83%BC%E4%B8%80%E8%A6%A7"
+        self.driver.get(url)
+        time.sleep(1)
+
+        # sorttabletable number that aren't shown are operators
+        # that haven't been release in global
+        tables = [
+            "sortabletable1",
+            "sortabletable3",
+            "sortabletable4",
+            "sortabletable5",
+            "sortabletable6",
+            "sortabletable8",
+            "sortabletable9",
+            "sortabletable10",
+            "sortabletable11",
+        ]
+
+
+        # Get operator url_query and name in japan
+        with open(text_path, "w", encoding="utf-8") as text_file, \
+            open(query_path, "w", encoding="utf-8") as query_file:
+
+            for table in tables:
+                table_element = self.driver.find_element_by_id(table)
+                row_elements = table_element.find_elements_by_css_selector("tbody > tr > td:nth-child(2) > a")
+
+                for row in row_elements:
+                    href = row.get_attribute("href")
+                    href = unquote(href)
+
+                    operator_name = row.text
+                    operator_query = urlparse(href).query
+
+                    query_file.write(operator_query)
+                    query_file.write("\n")
+
+                    text_file.write(operator_name)
+                    text_file.write("\n")
+
+
+class OperatorVoiceLinesJPScrapper(SeleniumScrapper):
+
+    def run(self):
+        # Use operator jp query name
+        main_url = "https://arknights.wikiru.jp/?{}"
+        operator_list_text = os.path.join(OPERATOR_DIR, "operators_jp_query.txt")
+
+        with open(operator_list_text, "r", encoding="utf-8") as file:
+            operators = file.read().splitlines()
+            operators = list(filter(lambda text: text, operators))
+
+        jp_line_folder = "jp"
+        jp_line_dir = os.path.join(LINE_DIR, jp_line_folder)
+
+        if not os.path.exists(jp_line_dir):
+            os.makedirs(jp_line_dir, exist_ok=True)
+
+        operator_lines_threshold = 30
+        container_element_ids = [
+            "rgn_content2",
+            "rgn_content3",
+            "rgn_content4",
+            "rgn_content5",
+            "rgn_content6",
+            "rgn_content7",
+            "rgn_content8",
+            "rgn_content9"
+        ]
+
+        # Visit each url and retrieve the voice lines
+        for name in operators:
+            print(f"Fetching {name!r} voice lines")
+
+            line_path = os.path.join(jp_line_dir, f"{name}.txt")
+            if os.path.exists(line_path):
+                with open(line_path, "r", encoding="utf-8") as line_file:
+                    lines = line_file.readlines()
+                    if len(lines) > operator_lines_threshold:
+                        print(f"Operator {name!r} voice lines has already been downloaded")
+                        continue
+
+            url = main_url.format(name)
+            self.driver.get(url)
+
+            # Operator voice lines container id is named by arbitrary "rgn_content"
+            for element_id in container_element_ids:
+                try:
+                    container_element = self.driver.find_element_by_id(element_id)
+                    voice_lines_table = container_element.find_element_by_tag_name("table")
+                    voice_lines_rows = voice_lines_table.find_elements_by_tag_name("tr")
+
+                    if len(voice_lines_rows) < operator_lines_threshold:
+                        print(f"{name} voice lines is not found in container id {element_id!r}")
+                        continue
+                    else:
+                        break
+
+                except NoSuchElementException:
+                    print(f"{name} voice lines is not found in container id {element_id!r}")
+                    continue
+
+
+            with open(line_path, "w", encoding="utf-8") as line_file:
+                for row_element in voice_lines_rows:
+                    title = row_element.find_element_by_css_selector("*:nth-child(1)")
+                    lines = row_element.find_element_by_css_selector("*:nth-child(2)")
+
+                    # Somehow, we can't extract text with selenium but BeautifulSoup will do
+                    soup_title = BeautifulSoup(title.get_attribute('innerHTML'), "html.parser")
+                    soup_lines = BeautifulSoup(lines.get_attribute('innerHTML'), "html.parser")
+
+                    line_file.write(f"{soup_title.text}|{soup_lines.text}\n")
+
+
+
+
