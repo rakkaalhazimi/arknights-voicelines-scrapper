@@ -7,7 +7,8 @@ from arknight_scrapper.scrapper import (
     OperatorListScrapper,
     OperatorListJPScrapper,
     OperatorVoiceENScrapper,
-    OperatorVoiceLinesJPScrapper
+    OperatorVoiceLinesJPScrapper,
+    OperatorListJP2ENMapScrapper
 )
 
 
@@ -24,6 +25,7 @@ def main(options):
         "operator_list_jp": OperatorListJPScrapper,
         "operator_voices": OperatorVoiceENScrapper,
         "operator_lines_jp": OperatorVoiceLinesJPScrapper,
+        "operator_list_jp2en_map": OperatorListJP2ENMapScrapper
     }
     scrapper: Scrapper = tasks.get(options.task)
     if issubclass(scrapper, SeleniumScrapper):
@@ -42,7 +44,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "task",
         metavar="t",
-        help="What task do you want to do? available: [operator_list, operator_list_jp, operator_voices, operator_lines_jp]"
+        help="What task do you want to do? available: [operator_list, operator_list_jp, operator_voices, operator_lines_jp, operator_list_jp2en_map]"
     )
     parser.add_argument("--no_headless", default=True, action="store_false", help="Show browser UI when using selenium")
     args = parser.parse_args()

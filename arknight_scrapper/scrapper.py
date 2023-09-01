@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 import logging;
 import os
+import re
 import time
 import urllib
 from urllib import request
@@ -305,4 +306,54 @@ class OperatorVoiceLinesJPScrapper(SeleniumScrapper):
 
 
 
+class OperatorListJP2ENMapScrapper(SeleniumScrapper):
 
+    def run(self):
+        main_url = "https://wiki3.jp/arknightsjp/page/14"
+        operator_map_fn = "operators_jp2en.txt"
+        operator_map_path = os.path.join(OPERATOR_DIR, operator_map_fn)
+
+        if not os.path.exists(OPERATOR_DIR):
+            os.makedirs(OPERATOR_DIR, exist_ok=True)
+
+        self.driver.get(main_url)
+
+        operator_rows = self.driver.find_elements_by_css_selector(".equal_width.uk-table > tbody > tr > td")
+        print("Operator rows: ", len(operator_rows))
+
+        # JP operator name has format ☆<rank> <operator-name>
+        # example: ☆6 エクシア
+        #
+        # EN operator name has format (<operator-name>)
+        # example: (Exusiai)
+        #
+        operator_star_patterns = "(☆1|☆2|☆3|☆4|☆5|☆6) (.*)"
+        operator_latin_patterns = "\((.*)\)"
+
+        with open(operator_map_path, "w", encoding="utf-8") as file:
+
+            for row in operator_rows:
+                paragraph_elements = row.find_elements_by_tag_name("p")
+
+                operator_jp_name = ""
+                operator_en_name = ""
+
+                for paragraph in paragraph_elements:
+                    operator_jp_match = re.search(f"{operator_star_patterns}", paragraph.text)
+                    operator_en_match = re.search(f"{operator_latin_patterns}", paragraph.text)
+
+                    if operator_jp_match:
+                        operator_jp_name = operator_jp_match.group(2)
+
+                    if operator_en_match:
+                        operator_en_name = operator_en_match.group(1)
+
+                    print(paragraph.text)
+
+                print("Operator jp name: ", operator_jp_name)
+                print("Operator en name: ", operator_en_name)
+                print()
+                file.write(operator_jp_name)
+                file.write("|")
+                file.write(operator_en_name)
+                file.write("\n")
