@@ -189,7 +189,7 @@ class OperatorListJPScrapper(SeleniumScrapper):
     are needed to visit operator profile page, thus we need to map query name to
     operator name.
 
-    Operator whose query name is found but no real name found is might be a unreleased
+    Operator whose query name is found but his real name isn't found might be an unreleased
     opeartor, so we can leave it for now.
     """
 
