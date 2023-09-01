@@ -195,9 +195,7 @@ class OperatorListJPScrapper(SeleniumScrapper):
 
     def run(self):
         text_fn = "operators_jp.txt"
-        query_fn = "operators_jp_query.txt"
         text_path = os.path.join(OPERATOR_DIR, text_fn)
-        query_path = os.path.join(OPERATOR_DIR, query_fn)
 
         if not os.path.exists(OPERATOR_DIR):
             os.makedirs(OPERATOR_DIR, exist_ok=True)
@@ -222,8 +220,7 @@ class OperatorListJPScrapper(SeleniumScrapper):
 
 
         # Get operator url_query and name in japan
-        with open(text_path, "w", encoding="utf-8") as text_file, \
-            open(query_path, "w", encoding="utf-8") as query_file:
+        with open(text_path, "w", encoding="utf-8") as text_file:
 
             for table in tables:
                 table_element = self.driver.find_element_by_id(table)
@@ -236,11 +233,13 @@ class OperatorListJPScrapper(SeleniumScrapper):
                     operator_name = row.text
                     operator_query = urlparse(href).query
 
-                    query_file.write(operator_query)
-                    query_file.write("\n")
-
-                    text_file.write(operator_name)
-                    text_file.write("\n")
+                    # Ignore unreleased operator
+                    if operator_name:
+                        print("Operator name: ", operator_name)
+                        print("Operator query: ", operator_query)
+                        print()
+                        text_file.write(f"{operator_query}|{operator_name}")
+                        text_file.write("\n")
 
 
 class OperatorVoiceLinesJPScrapper(SeleniumScrapper):
