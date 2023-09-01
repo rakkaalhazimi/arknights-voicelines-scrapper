@@ -180,6 +180,18 @@ class OperatorVoiceENScrapper(Bs4Scrapper):
 
 
 class OperatorListJPScrapper(SeleniumScrapper):
+    """
+    Scrapper for operator list in japanese words.
+
+    In the 'arknights.wikiru.jp', every operators have link to their own profile.
+    Each link is referenced by operators name but there are cases when the link
+    isn't match with operator name (we will call it 'query name'). The query names
+    are needed to visit operator profile page, thus we need to map query name to
+    operator name.
+
+    Operator whose query name is found but no real name found is might be a unreleased
+    opeartor, so we can leave it for now.
+    """
 
     def run(self):
         text_fn = "operators_jp.txt"
