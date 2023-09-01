@@ -181,7 +181,7 @@ class OperatorVoiceENScrapper(Bs4Scrapper):
 
 class OperatorListJPScrapper(SeleniumScrapper):
     """
-    Scrapper for operator list in japanese words.
+    Scrapper for operator list in japanese.
 
     In the 'arknights.wikiru.jp', every operators have link to their own profile.
     Each link is referenced by operators name but there are cases when the link
