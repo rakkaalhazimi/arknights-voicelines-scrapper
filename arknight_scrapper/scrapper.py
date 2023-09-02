@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 import logging;
+import json
 import os
 import re
 import time
@@ -8,6 +9,7 @@ from urllib import request
 from urllib.parse import urlparse, unquote
 
 from bs4 import BeautifulSoup
+import cutlet
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
@@ -256,15 +258,30 @@ class OperatorVoiceLinesJPScrapper(SeleniumScrapper):
     the jp line to its latin version because I need that for my deep learning project.
     """
     def run(self):
-        # Use operator jp query name
+
         main_url = "https://arknights.wikiru.jp/?{}"
-        operator_list_text = os.path.join(OPERATOR_DIR, "operators_jp_query.txt")
 
-        with open(operator_list_text, "r", encoding="utf-8") as file:
-            operators = file.read().splitlines()
-            operators = list(filter(lambda text: text, operators))
+        # Operator query name to real name mapper
+        with open(os.path.join("data_mapper/jpquery2name.json"), "r", encoding="utf-8") as file:
+            query_map = json.load(file)
 
-        jp_line_folder = "jp"
+        # Operator jp to en name mapper
+        with open(os.path.join("data_mapper/jp2en.json"), "r", encoding="utf-8") as file:
+            en_map = json.load(file)
+
+        # Voice line title map (greetings, idle, etc.)
+        with open("data_mapper/jptitle2en.json", "r") as title_map_file:
+            jp_title_mapper = json.load(title_map_file)
+
+        # Katsu to convert romaji2latin
+        katsu = cutlet.Cutlet(use_foreign_spelling=False)
+
+        # Add exception for こんにちは as it will spit konnichiha
+        # instead of konnichiwa.
+        # ref: https://github.com/polm/cutlet/issues/33
+        katsu.exceptions["こんにちは"] = "konnichiwa"
+
+        jp_line_folder = "jp-test"
         jp_line_dir = os.path.join(LINE_DIR, jp_line_folder)
 
         if not os.path.exists(jp_line_dir):
@@ -283,18 +300,22 @@ class OperatorVoiceLinesJPScrapper(SeleniumScrapper):
         ]
 
         # Visit each url and retrieve the voice lines
-        for name in operators:
-            print(f"Fetching {name!r} voice lines")
+        for query, name in query_map.items():
 
-            line_path = os.path.join(jp_line_dir, f"{name}.txt")
+            # Convert jp name to en name
+            en_name = en_map.get(name, name)
+            print(f"Fetching {en_name!r} voice lines")
+
+            line_path = os.path.join(jp_line_dir, f"{en_name}.txt")
             if os.path.exists(line_path):
                 with open(line_path, "r", encoding="utf-8") as line_file:
                     lines = line_file.readlines()
                     if len(lines) > operator_lines_threshold:
-                        print(f"Operator {name!r} voice lines has already been downloaded")
+                        print(f"Operator {en_name!r} voice lines has already been downloaded")
                         continue
 
-            url = main_url.format(name)
+            # Visit operator profile by query
+            url = main_url.format(query)
             self.driver.get(url)
 
             # Operator voice lines container id is named by arbitrary "rgn_content"
@@ -305,13 +326,13 @@ class OperatorVoiceLinesJPScrapper(SeleniumScrapper):
                     voice_lines_rows = voice_lines_table.find_elements_by_tag_name("tr")
 
                     if len(voice_lines_rows) < operator_lines_threshold:
-                        print(f"{name} voice lines is not found in container id {element_id!r}")
+                        print(f"{en_name} voice lines is not found in container id {element_id!r}")
                         continue
                     else:
                         break
 
                 except NoSuchElementException:
-                    print(f"{name} voice lines is not found in container id {element_id!r}")
+                    print(f"{en_name} voice lines is not found in container id {element_id!r}")
                     continue
 
 
@@ -324,7 +345,13 @@ class OperatorVoiceLinesJPScrapper(SeleniumScrapper):
                     soup_title = BeautifulSoup(title.get_attribute('innerHTML'), "html.parser")
                     soup_lines = BeautifulSoup(lines.get_attribute('innerHTML'), "html.parser")
 
-                    line_file.write(f"{soup_title.text}|{soup_lines.text}\n")
+                    # Jp name is mapped to en name while
+                    # romaji line is mapped to its latin version
+                    en_title = jp_title_mapper.get(soup_title.text, soup_title.text)
+                    romaji_line = soup_lines.text
+                    latin_line = katsu.romaji(romaji_line)
+
+                    line_file.write(f"{en_title}|{latin_line}\n")
 
 
 
