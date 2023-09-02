@@ -243,7 +243,18 @@ class OperatorListJPScrapper(SeleniumScrapper):
 
 
 class OperatorVoiceLinesJPScrapper(SeleniumScrapper):
+    """
+    Scrapper for operator voice lines in japanese.
 
+    Every operator have their own voice lines. We can get operators voiceline by visitting
+    their profile page using their query name. The voiceline is located inside a table with
+    'rng_content' class name. Unfortunately, it might be placed in any number of `rng_content`
+    like 'rng_content1', 'rng_content3', etc. Worry not, we have pre-computed any possibles number.
+
+    Arknight voice line format is leaded by title then the actual line, like 'greet: ohayo dokutah'.
+    The titles are written in japanese, so we need to translate them back to EN version. I convert
+    the jp line to its latin version because I need that for my deep learning project.
+    """
     def run(self):
         # Use operator jp query name
         main_url = "https://arknights.wikiru.jp/?{}"
